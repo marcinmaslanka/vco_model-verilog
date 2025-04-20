@@ -1,0 +1,26 @@
+`include "constants.vams"
+`include "discipline.h"
+
+module vco(out, vctrl);
+    inout out, vctrl;
+    electrical out, vctrl;
+
+    // Parameters
+    parameter real f0 = 1e6 from (0:inf);    // Center frequency (Hz)
+    parameter real K  = 1e6 from (0:inf);    // VCO gain (Hz/V)
+    parameter real A  = 1.0;                 // Output amplitude (V)
+    
+    real freq;       // Instantaneous frequency
+    real phase;      // Phase accumulator
+
+    analog begin
+        // Calculate instantaneous frequency
+        freq = f0 + K * V(vctrl);
+
+        // Integrate to get phase
+        phase = idt(2.0 * `M_PI * freq, 0.0);
+
+        // Output sine wave
+        V(out) <+ A * sin(phase);
+    end
+endmodule
